@@ -13,8 +13,9 @@ from gnuradio import qtgui
 from PyQt5 import QtCore
 from gnuradio import analog
 from gnuradio import blocks
-from gnuradio import gr
+from gnuradio import filter
 from gnuradio.filter import firdes
+from gnuradio import gr
 from gnuradio.fft import window
 import sys
 import signal
@@ -62,18 +63,134 @@ class sampling(gr.top_block, Qt.QWidget):
         # Variables
         ##################################################
         self.samp_rate = samp_rate = 1e6
-        self.range_kH = range_kH = 10000
+        self.Sampling_kHz = Sampling_kHz = 1000
+        self.Frequency_kHz = Frequency_kHz = 20
 
         ##################################################
         # Blocks
         ##################################################
 
-        self._range_kH_range = qtgui.Range(0, 50e3, 1, 10000, 200)
-        self._range_kH_win = qtgui.RangeWidget(self._range_kH_range, self.set_range_kH, "'range_kH'", "counter_slider", float, QtCore.Qt.Horizontal)
-        self.top_layout.addWidget(self._range_kH_win)
+        self._Sampling_kHz_range = qtgui.Range(0, 10000, 1, 1000, 200)
+        self._Sampling_kHz_win = qtgui.RangeWidget(self._Sampling_kHz_range, self.set_Sampling_kHz, "'Sampling_kHz'", "counter_slider", float, QtCore.Qt.Horizontal)
+        self.top_grid_layout.addWidget(self._Sampling_kHz_win, 0, 0, 1, 1)
+        for r in range(0, 1):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(0, 1):
+            self.top_grid_layout.setColumnStretch(c, 1)
+        self._Frequency_kHz_range = qtgui.Range(0, 10e3, 1, 20, 200)
+        self._Frequency_kHz_win = qtgui.RangeWidget(self._Frequency_kHz_range, self.set_Frequency_kHz, "'Frequency_kHz'", "counter_slider", float, QtCore.Qt.Horizontal)
+        self.top_grid_layout.addWidget(self._Frequency_kHz_win, 0, 1, 1, 1)
+        for r in range(0, 1):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(1, 2):
+            self.top_grid_layout.setColumnStretch(c, 1)
+        self.qtgui_time_sink_x_0_0_0 = qtgui.time_sink_f(
+            500, #size
+            Sampling_kHz*1000*10, #samp_rate
+            "repeat", #name
+            1, #number of inputs
+            None # parent
+        )
+        self.qtgui_time_sink_x_0_0_0.set_update_time(0.10)
+        self.qtgui_time_sink_x_0_0_0.set_y_axis(-1, 1)
+
+        self.qtgui_time_sink_x_0_0_0.set_y_label('Amplitude', "")
+
+        self.qtgui_time_sink_x_0_0_0.enable_tags(True)
+        self.qtgui_time_sink_x_0_0_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
+        self.qtgui_time_sink_x_0_0_0.enable_autoscale(False)
+        self.qtgui_time_sink_x_0_0_0.enable_grid(False)
+        self.qtgui_time_sink_x_0_0_0.enable_axis_labels(True)
+        self.qtgui_time_sink_x_0_0_0.enable_control_panel(False)
+        self.qtgui_time_sink_x_0_0_0.enable_stem_plot(False)
+
+
+        labels = ['low pass', 'Signal 2', 'Signal 3', 'Signal 4', 'Signal 5',
+            'Signal 6', 'Signal 7', 'Signal 8', 'Signal 9', 'Signal 10']
+        widths = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        colors = ['blue', 'red', 'green', 'black', 'cyan',
+            'magenta', 'yellow', 'dark red', 'dark green', 'dark blue']
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0, 1.0]
+        styles = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        markers = [2, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1]
+
+
+        for i in range(1):
+            if len(labels[i]) == 0:
+                self.qtgui_time_sink_x_0_0_0.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_time_sink_x_0_0_0.set_line_label(i, labels[i])
+            self.qtgui_time_sink_x_0_0_0.set_line_width(i, widths[i])
+            self.qtgui_time_sink_x_0_0_0.set_line_color(i, colors[i])
+            self.qtgui_time_sink_x_0_0_0.set_line_style(i, styles[i])
+            self.qtgui_time_sink_x_0_0_0.set_line_marker(i, markers[i])
+            self.qtgui_time_sink_x_0_0_0.set_line_alpha(i, alphas[i])
+
+        self._qtgui_time_sink_x_0_0_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0_0_0.qwidget(), Qt.QWidget)
+        self.top_grid_layout.addWidget(self._qtgui_time_sink_x_0_0_0_win, 7, 0, 3, 1)
+        for r in range(7, 10):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(0, 1):
+            self.top_grid_layout.setColumnStretch(c, 1)
+        self.qtgui_time_sink_x_0_0 = qtgui.time_sink_f(
+            500, #size
+            Sampling_kHz*1000*10, #samp_rate
+            "repeat", #name
+            1, #number of inputs
+            None # parent
+        )
+        self.qtgui_time_sink_x_0_0.set_update_time(0.10)
+        self.qtgui_time_sink_x_0_0.set_y_axis(-1, 1)
+
+        self.qtgui_time_sink_x_0_0.set_y_label('Amplitude', "")
+
+        self.qtgui_time_sink_x_0_0.enable_tags(True)
+        self.qtgui_time_sink_x_0_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
+        self.qtgui_time_sink_x_0_0.enable_autoscale(True)
+        self.qtgui_time_sink_x_0_0.enable_grid(False)
+        self.qtgui_time_sink_x_0_0.enable_axis_labels(True)
+        self.qtgui_time_sink_x_0_0.enable_control_panel(False)
+        self.qtgui_time_sink_x_0_0.enable_stem_plot(False)
+
+
+        labels = ['repeat', 'Signal 2', 'Signal 3', 'Signal 4', 'Signal 5',
+            'Signal 6', 'Signal 7', 'Signal 8', 'Signal 9', 'Signal 10']
+        widths = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        colors = ['blue', 'red', 'green', 'black', 'cyan',
+            'magenta', 'yellow', 'dark red', 'dark green', 'dark blue']
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0, 1.0]
+        styles = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        markers = [2, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1]
+
+
+        for i in range(1):
+            if len(labels[i]) == 0:
+                self.qtgui_time_sink_x_0_0.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_time_sink_x_0_0.set_line_label(i, labels[i])
+            self.qtgui_time_sink_x_0_0.set_line_width(i, widths[i])
+            self.qtgui_time_sink_x_0_0.set_line_color(i, colors[i])
+            self.qtgui_time_sink_x_0_0.set_line_style(i, styles[i])
+            self.qtgui_time_sink_x_0_0.set_line_marker(i, markers[i])
+            self.qtgui_time_sink_x_0_0.set_line_alpha(i, alphas[i])
+
+        self._qtgui_time_sink_x_0_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0_0.qwidget(), Qt.QWidget)
+        self.top_grid_layout.addWidget(self._qtgui_time_sink_x_0_0_win, 4, 0, 3, 1)
+        for r in range(4, 7):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(0, 1):
+            self.top_grid_layout.setColumnStretch(c, 1)
         self.qtgui_time_sink_x_0 = qtgui.time_sink_f(
             50, #size
-            range_kH*1000, #samp_rate
+            Sampling_kHz*1000, #samp_rate
             "source", #name
             1, #number of inputs
             None # parent
@@ -118,12 +235,110 @@ class sampling(gr.top_block, Qt.QWidget):
             self.qtgui_time_sink_x_0.set_line_alpha(i, alphas[i])
 
         self._qtgui_time_sink_x_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0.qwidget(), Qt.QWidget)
-        self.top_layout.addWidget(self._qtgui_time_sink_x_0_win)
+        self.top_grid_layout.addWidget(self._qtgui_time_sink_x_0_win, 1, 0, 3, 1)
+        for r in range(1, 4):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(0, 1):
+            self.top_grid_layout.setColumnStretch(c, 1)
+        self.qtgui_freq_sink_x_0_0_0 = qtgui.freq_sink_f(
+            1024, #size
+            window.WIN_BLACKMAN_hARRIS, #wintype
+            0, #fc
+            (Sampling_kHz*1000*10), #bw
+            "source", #name
+            1,
+            None # parent
+        )
+        self.qtgui_freq_sink_x_0_0_0.set_update_time(0.10)
+        self.qtgui_freq_sink_x_0_0_0.set_y_axis((-140), 10)
+        self.qtgui_freq_sink_x_0_0_0.set_y_label('Relative Gain', 'dB')
+        self.qtgui_freq_sink_x_0_0_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
+        self.qtgui_freq_sink_x_0_0_0.enable_autoscale(False)
+        self.qtgui_freq_sink_x_0_0_0.enable_grid(False)
+        self.qtgui_freq_sink_x_0_0_0.set_fft_average(1.0)
+        self.qtgui_freq_sink_x_0_0_0.enable_axis_labels(True)
+        self.qtgui_freq_sink_x_0_0_0.enable_control_panel(False)
+        self.qtgui_freq_sink_x_0_0_0.set_fft_window_normalized(False)
+
+
+        self.qtgui_freq_sink_x_0_0_0.set_plot_pos_half(not True)
+
+        labels = ['low pass', '', '', '', '',
+            '', '', '', '', '']
+        widths = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        colors = ["blue", "red", "green", "black", "cyan",
+            "magenta", "yellow", "dark red", "dark green", "dark blue"]
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0, 1.0]
+
+        for i in range(1):
+            if len(labels[i]) == 0:
+                self.qtgui_freq_sink_x_0_0_0.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_freq_sink_x_0_0_0.set_line_label(i, labels[i])
+            self.qtgui_freq_sink_x_0_0_0.set_line_width(i, widths[i])
+            self.qtgui_freq_sink_x_0_0_0.set_line_color(i, colors[i])
+            self.qtgui_freq_sink_x_0_0_0.set_line_alpha(i, alphas[i])
+
+        self._qtgui_freq_sink_x_0_0_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0_0_0.qwidget(), Qt.QWidget)
+        self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_0_0_win, 7, 1, 3, 1)
+        for r in range(7, 10):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(1, 2):
+            self.top_grid_layout.setColumnStretch(c, 1)
+        self.qtgui_freq_sink_x_0_0 = qtgui.freq_sink_f(
+            1024, #size
+            window.WIN_BLACKMAN_hARRIS, #wintype
+            0, #fc
+            (Sampling_kHz*1000*10), #bw
+            "source", #name
+            1,
+            None # parent
+        )
+        self.qtgui_freq_sink_x_0_0.set_update_time(0.10)
+        self.qtgui_freq_sink_x_0_0.set_y_axis((-140), 10)
+        self.qtgui_freq_sink_x_0_0.set_y_label('Relative Gain', 'dB')
+        self.qtgui_freq_sink_x_0_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
+        self.qtgui_freq_sink_x_0_0.enable_autoscale(False)
+        self.qtgui_freq_sink_x_0_0.enable_grid(False)
+        self.qtgui_freq_sink_x_0_0.set_fft_average(1.0)
+        self.qtgui_freq_sink_x_0_0.enable_axis_labels(True)
+        self.qtgui_freq_sink_x_0_0.enable_control_panel(False)
+        self.qtgui_freq_sink_x_0_0.set_fft_window_normalized(False)
+
+
+        self.qtgui_freq_sink_x_0_0.set_plot_pos_half(not True)
+
+        labels = ['', '', '', '', '',
+            '', '', '', '', '']
+        widths = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        colors = ["blue", "red", "green", "black", "cyan",
+            "magenta", "yellow", "dark red", "dark green", "dark blue"]
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0, 1.0]
+
+        for i in range(1):
+            if len(labels[i]) == 0:
+                self.qtgui_freq_sink_x_0_0.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_freq_sink_x_0_0.set_line_label(i, labels[i])
+            self.qtgui_freq_sink_x_0_0.set_line_width(i, widths[i])
+            self.qtgui_freq_sink_x_0_0.set_line_color(i, colors[i])
+            self.qtgui_freq_sink_x_0_0.set_line_alpha(i, alphas[i])
+
+        self._qtgui_freq_sink_x_0_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0_0.qwidget(), Qt.QWidget)
+        self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_0_win, 4, 1, 3, 1)
+        for r in range(4, 7):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(1, 2):
+            self.top_grid_layout.setColumnStretch(c, 1)
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_f(
             1024, #size
             window.WIN_BLACKMAN_hARRIS, #wintype
             0, #fc
-            (range_kH*1000), #bw
+            (Sampling_kHz*1000), #bw
             "source", #name
             1,
             None # parent
@@ -161,17 +376,38 @@ class sampling(gr.top_block, Qt.QWidget):
             self.qtgui_freq_sink_x_0.set_line_alpha(i, alphas[i])
 
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.qwidget(), Qt.QWidget)
-        self.top_layout.addWidget(self._qtgui_freq_sink_x_0_win)
-        self.blocks_throttle2_0 = blocks.throttle( gr.sizeof_float*1, (range_kH*1000), True, 0 if "auto" == "auto" else max( int(float(0.1) * (range_kH*1000)) if "auto" == "time" else int(0.1), 1) )
-        self.analog_sig_source_x_0 = analog.sig_source_f((range_kH*1000), analog.GR_COS_WAVE, samp_rate, 1, 0, 0)
+        self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_win, 1, 1, 3, 1)
+        for r in range(1, 4):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(1, 2):
+            self.top_grid_layout.setColumnStretch(c, 1)
+        self.low_pass_filter_0 = filter.fir_filter_fff(
+            1,
+            firdes.low_pass(
+                1,
+                (Sampling_kHz*1000*10),
+                500e3,
+                10e3,
+                window.WIN_HAMMING,
+                6.76))
+        self.interp_fir_filter_xxx_0 = filter.interp_fir_filter_fff(10, [10,0,0,0,0,0,0,0,0,0])
+        self.interp_fir_filter_xxx_0.declare_sample_delay(0)
+        self.blocks_throttle2_0 = blocks.throttle( gr.sizeof_float*1, (Sampling_kHz*1000), True, 0 if "auto" == "auto" else max( int(float(0.1) * (Sampling_kHz*1000)) if "auto" == "time" else int(0.1), 1) )
+        self.analog_sig_source_x_0 = analog.sig_source_f((Sampling_kHz*1000), analog.GR_COS_WAVE, (Frequency_kHz*1000), 1, 0, 0)
 
 
         ##################################################
         # Connections
         ##################################################
         self.connect((self.analog_sig_source_x_0, 0), (self.blocks_throttle2_0, 0))
+        self.connect((self.blocks_throttle2_0, 0), (self.interp_fir_filter_xxx_0, 0))
         self.connect((self.blocks_throttle2_0, 0), (self.qtgui_freq_sink_x_0, 0))
         self.connect((self.blocks_throttle2_0, 0), (self.qtgui_time_sink_x_0, 0))
+        self.connect((self.interp_fir_filter_xxx_0, 0), (self.low_pass_filter_0, 0))
+        self.connect((self.interp_fir_filter_xxx_0, 0), (self.qtgui_freq_sink_x_0_0, 0))
+        self.connect((self.interp_fir_filter_xxx_0, 0), (self.qtgui_time_sink_x_0_0, 0))
+        self.connect((self.low_pass_filter_0, 0), (self.qtgui_freq_sink_x_0_0_0, 0))
+        self.connect((self.low_pass_filter_0, 0), (self.qtgui_time_sink_x_0_0_0, 0))
 
 
     def closeEvent(self, event):
@@ -187,17 +423,28 @@ class sampling(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.analog_sig_source_x_0.set_frequency(self.samp_rate)
 
-    def get_range_kH(self):
-        return self.range_kH
+    def get_Sampling_kHz(self):
+        return self.Sampling_kHz
 
-    def set_range_kH(self, range_kH):
-        self.range_kH = range_kH
-        self.analog_sig_source_x_0.set_sampling_freq((self.range_kH*1000))
-        self.blocks_throttle2_0.set_sample_rate((self.range_kH*1000))
-        self.qtgui_freq_sink_x_0.set_frequency_range(0, (self.range_kH*1000))
-        self.qtgui_time_sink_x_0.set_samp_rate(self.range_kH*1000)
+    def set_Sampling_kHz(self, Sampling_kHz):
+        self.Sampling_kHz = Sampling_kHz
+        self.analog_sig_source_x_0.set_sampling_freq((self.Sampling_kHz*1000))
+        self.blocks_throttle2_0.set_sample_rate((self.Sampling_kHz*1000))
+        self.low_pass_filter_0.set_taps(firdes.low_pass(1, (self.Sampling_kHz*1000*10), 500e3, 10e3, window.WIN_HAMMING, 6.76))
+        self.qtgui_freq_sink_x_0.set_frequency_range(0, (self.Sampling_kHz*1000))
+        self.qtgui_freq_sink_x_0_0.set_frequency_range(0, (self.Sampling_kHz*1000*10))
+        self.qtgui_freq_sink_x_0_0_0.set_frequency_range(0, (self.Sampling_kHz*1000*10))
+        self.qtgui_time_sink_x_0.set_samp_rate(self.Sampling_kHz*1000)
+        self.qtgui_time_sink_x_0_0.set_samp_rate(self.Sampling_kHz*1000*10)
+        self.qtgui_time_sink_x_0_0_0.set_samp_rate(self.Sampling_kHz*1000*10)
+
+    def get_Frequency_kHz(self):
+        return self.Frequency_kHz
+
+    def set_Frequency_kHz(self, Frequency_kHz):
+        self.Frequency_kHz = Frequency_kHz
+        self.analog_sig_source_x_0.set_frequency((self.Frequency_kHz*1000))
 
 
 
