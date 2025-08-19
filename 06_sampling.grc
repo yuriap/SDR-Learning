@@ -183,7 +183,7 @@ blocks:
     minoutbuf: '0'
     samp_rate: Sampling_kHz*1000*10
     type: fir_filter_fff
-    width: 10e3
+    width: 10e2
     win: window.WIN_HAMMING
   states:
     bus_sink: false

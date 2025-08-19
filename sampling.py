@@ -387,7 +387,7 @@ class sampling(gr.top_block, Qt.QWidget):
                 1,
                 (Sampling_kHz*1000*10),
                 500e3,
-                10e3,
+                10e2,
                 window.WIN_HAMMING,
                 6.76))
         self.interp_fir_filter_xxx_0 = filter.interp_fir_filter_fff(10, [10,0,0,0,0,0,0,0,0,0])
@@ -431,7 +431,7 @@ class sampling(gr.top_block, Qt.QWidget):
         self.Sampling_kHz = Sampling_kHz
         self.analog_sig_source_x_0.set_sampling_freq((self.Sampling_kHz*1000))
         self.blocks_throttle2_0.set_sample_rate((self.Sampling_kHz*1000))
-        self.low_pass_filter_0.set_taps(firdes.low_pass(1, (self.Sampling_kHz*1000*10), 500e3, 10e3, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_0.set_taps(firdes.low_pass(1, (self.Sampling_kHz*1000*10), 500e3, 10e2, window.WIN_HAMMING, 6.76))
         self.qtgui_freq_sink_x_0.set_frequency_range(0, (self.Sampling_kHz*1000))
         self.qtgui_freq_sink_x_0_0.set_frequency_range(0, (self.Sampling_kHz*1000*10))
         self.qtgui_freq_sink_x_0_0_0.set_frequency_range(0, (self.Sampling_kHz*1000*10))
